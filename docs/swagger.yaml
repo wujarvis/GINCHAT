@@ -1,0 +1,119 @@
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  models.UserBasic:
+    properties:
+      clientIp:
+        type: string
+      clientPort:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      deviceInfo:
+        type: string
+      email:
+        type: string
+      heartBeatTime:
+        type: string
+      id:
+        type: integer
+      identity:
+        type: string
+      isLoginout:
+        type: boolean
+      loginTime:
+        type: string
+      loginoutTime:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  service.GlobalIndexResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  service.GlobalUserListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.UserBasic'
+        type: array
+      msg:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /index:
+    get:
+      consumes:
+      - application/json
+      description: 获取首页信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.GlobalIndexResponse'
+      summary: 首页
+      tags:
+      - 首页
+  /usr/create:
+    get:
+      description: 创建一个新用户
+      parameters:
+      - description: 用户名
+        in: query
+        name: name
+        required: true
+        type: string
+      - description: 密码
+        in: query
+        name: password
+        required: true
+        type: string
+      - description: 确认密码
+        in: query
+        name: repassword
+        required: true
+        type: string
+      responses:
+        "200":
+          description: code","message"}
+          schema:
+            type: string
+      summary: 创建用户
+      tags:
+      - 用户模块
+  /usr/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取用户信息
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/service.GlobalUserListResponse'
+      summary: 用户列表
+      tags:
+      - 用户模块
+swagger: "2.0"

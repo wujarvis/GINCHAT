@@ -1,0 +1,6 @@
+mysql:
+  username: root
+  password: letsg0
+  database: gin_chat
+  hostIp: 192.168.1.113
+  port: 9307

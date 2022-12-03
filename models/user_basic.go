@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"ginchat/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -56,6 +57,10 @@ func FindUserByName(name string) *UserBasic {
 	user := UserBasic{}
 	first := utils.DB.Where("name = ?", name).First(&user)
 	if first.Error == nil {
+		// token
+		stamp := fmt.Sprintf("%d", time.Now().Unix())
+		tmp := utils.Md5Encode(stamp)
+		utils.DB.Model(&user).Where("name = ?", name).Update("identity", tmp)
 		return &user
 	} else {
 		return nil

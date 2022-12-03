@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/go-redis/redis"
+
 	"gorm.io/gorm/logger"
 
 	"gorm.io/driver/mysql"
@@ -23,7 +25,6 @@ func InitConfig() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Printf("config mysql: %v", viper.Get("mysql"))
 }
 
 func InitMysql() {
@@ -46,5 +47,24 @@ func InitMysql() {
 	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: newLogger})
 	if err != nil {
 		panic(err)
+	} else {
+		fmt.Println("mysql initialization succeeded.")
+	}
+}
+
+func InitRedis() {
+	Rdb := redis.NewClient(&redis.Options{
+		Addr:         viper.GetString("redis.addr"),
+		Password:     viper.GetString("redis.password"),
+		DB:           viper.GetInt("redis.DB"),
+		PoolSize:     viper.GetInt("redis.poolSize"),
+		MinIdleConns: viper.GetInt("redis.minIdleConns"),
+	})
+
+	_, err := Rdb.Ping().Result()
+	if err != nil {
+		panic(err)
+	} else {
+		fmt.Println("redis initialization succeeded.")
 	}
 }

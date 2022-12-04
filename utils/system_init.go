@@ -1,12 +1,13 @@
 package utils
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
 	"time"
 
-	"github.com/go-redis/redis"
+	"github.com/go-redis/redis/v9"
 
 	"gorm.io/gorm/logger"
 
@@ -16,7 +17,10 @@ import (
 	"github.com/spf13/viper"
 )
 
-var DB *gorm.DB
+var (
+	DB  *gorm.DB
+	RDB *redis.Client
+)
 
 func InitConfig() {
 	viper.SetConfigName("app")
@@ -52,8 +56,10 @@ func InitMysql() {
 	}
 }
 
+const PublishKey = "websocket"
+
 func InitRedis() {
-	Rdb := redis.NewClient(&redis.Options{
+	RDB = redis.NewClient(&redis.Options{
 		Addr:         viper.GetString("redis.addr"),
 		Password:     viper.GetString("redis.password"),
 		DB:           viper.GetInt("redis.DB"),
@@ -61,10 +67,32 @@ func InitRedis() {
 		MinIdleConns: viper.GetInt("redis.minIdleConns"),
 	})
 
-	_, err := Rdb.Ping().Result()
+	//ctx := context.Context()
+	//Rdb.Ping(ctx)
+	//_, err := Rdb.Ping().Result()
+	//if err != nil {
+	//	panic(err)
+	//} else {
+	//	fmt.Println("redis initialization succeeded.")
+	//}
+}
+
+// Publish 发布消息到Redis
+func Publish(ctx context.Context, channel string, msg string) error {
+	err := RDB.Publish(ctx, channel, msg).Err()
+	fmt.Println("Publish: ", msg)
+	return err
+}
+
+// Subscribe 订阅消息
+func Subscribe(ctx context.Context, channel string) (string, error) {
+	sub := RDB.Subscribe(ctx, channel)
+	fmt.Println("sub......", ctx)
+	msg, err := sub.ReceiveMessage(ctx)
 	if err != nil {
-		panic(err)
+		fmt.Println("sub err.....", err)
 	} else {
-		fmt.Println("redis initialization succeeded.")
+		fmt.Println("subscribe: ", msg.Payload)
 	}
+	return msg.Payload, err
 }
